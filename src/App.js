@@ -1,26 +1,56 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {Component} from 'react'
+import {connect} from 'react-redux'
+import {fetchSimplePackage} from './simplePackage/actions'
+import {fetchComplexPackage} from './complexPackage/actions'
+import SimplePackage from './simplePackage/components/SimplePackage'
+import ComplexPackage from './complexPackage/components/ComplexPackage'
+import './App.css'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+  state = {
+    currPackage: 'simple'
+  }
+
+  componentDidMount() {
+    const {fetchSimplePackage, fetchComplexPackage} = this.props
+
+    fetchSimplePackage()
+    fetchComplexPackage()
+  }
+
+  handleOnClick = () => {
+    const {currPackage} = this.state
+
+    this.setState({currPackage: currPackage === 'simple' ? 'complex' : 'simple'})
+  }
+
+  render() {
+    const {simplePackage, complexPackage} = this.props
+    const {currPackage} = this.state
+
+    return (
+      <div className="app">
+        {
+          currPackage === 'simple' &&
+          <SimplePackage simplePackage={simplePackage} />
+        }
+        {
+          currPackage === 'complex' &&
+          <ComplexPackage complexPackage={complexPackage} />
+        }
+        <div className='toggle-button' onClick={this.handleOnClick}>Toggle</div>
+      </div>
+    )
+  }
 }
 
-export default App;
+const mapStateToProps = (store) =>{
+  return {
+    simplePackage: store.simplePackage.simplePackage,
+    complexPackage: store.complexPackage.complexPackage
+  }
+}
+
+const mapDispatchToProps = {fetchSimplePackage, fetchComplexPackage}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App)
